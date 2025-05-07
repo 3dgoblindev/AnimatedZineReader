@@ -1,0 +1,322 @@
+[gd_scene load_steps=21 format=3 uid="uid://c58pneqlpaoe6"]
+
+[ext_resource type="Script" path="res://main.gd" id="1_acyn8"]
+[ext_resource type="AudioStream" uid="uid://bjf081qg3bspl" path="res://Music/Blackout.mp3" id="2_6a7j8"]
+[ext_resource type="Texture2D" uid="uid://cnwkwswl41jek" path="res://Images/BG.png" id="2_lcaji"]
+[ext_resource type="AudioStream" uid="uid://dugclfx772lqp" path="res://Sounds/PageTurn.wav" id="2_x4leh"]
+[ext_resource type="Texture2D" uid="uid://b8ichjcrlivvg" path="res://pages/3.png" id="3_a2l6c"]
+[ext_resource type="Texture2D" uid="uid://bt072jfl1vfl4" path="res://Images/Fire/1 (1).png" id="3_wexfg"]
+[ext_resource type="Texture2D" uid="uid://bwh1diptkmlpw" path="res://Images/Fire/1 (5).png" id="4_431mv"]
+[ext_resource type="Texture2D" uid="uid://bvmntca4lm5tm" path="res://pages/6.png" id="4_ptt1b"]
+[ext_resource type="Texture2D" uid="uid://p1jp4lvsyp4u" path="res://Images/Fire/1 (10).png" id="5_yuonj"]
+[ext_resource type="Texture2D" uid="uid://qaetlfurqtou" path="res://Images/Fire/1 (15).png" id="6_3hv84"]
+[ext_resource type="Texture2D" uid="uid://bpsqwrcbt2gmb" path="res://pages/7.png" id="6_4f438"]
+[ext_resource type="Texture2D" uid="uid://c0ins5tp1yorw" path="res://Images/Fire/1 (25).png" id="7_78fep"]
+[ext_resource type="Texture2D" uid="uid://c8ymesmxd78yi" path="res://Images/Fire/1 (35).png" id="8_d6hd0"]
+[ext_resource type="Texture2D" uid="uid://cfrsuc38k4q1f" path="res://Images/Fire/1 (40).png" id="9_otqiw"]
+[ext_resource type="Texture2D" uid="uid://cvdt0umg8k6kf" path="res://Images/Fire/1 (45).png" id="10_sydqd"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ikkfy"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_wexfg")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_431mv")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_yuonj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_3hv84")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_78fep")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_d6hd0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_otqiw")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_sydqd")
+}],
+"loop": true,
+"name": &"default",
+"speed": 12.0
+}]
+
+[sub_resource type="Animation" id="Animation_u6yfq"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("RPage:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("RPage:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("LPage2:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("LPage2:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("LPage:scale")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("LPage:visible")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("RPage2:scale")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("RPage2:visible")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="Animation" id="Animation_2f26g"]
+resource_name = "TurnPage_L"
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("LPage:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0333333, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(0.027, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("LPage:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.0333333, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("RPage2:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.3, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.027, 1), Vector2(1, 1)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("RPage2:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.3, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+
+[sub_resource type="Animation" id="Animation_0gxn4"]
+resource_name = "TurnPage_R"
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("RPage:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.0333334, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(1, 1), Vector2(0.0272637, 1)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("RPage:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0.0333333, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("LPage2:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.0333333, 0.3),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [false, true]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("LPage2:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0.3, 0.6),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(0.027, 1), Vector2(1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_j4jk7"]
+_data = {
+"RESET": SubResource("Animation_u6yfq"),
+"TurnPage_L": SubResource("Animation_2f26g"),
+"TurnPage_R": SubResource("Animation_0gxn4")
+}
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_acyn8")
+
+[node name="Bg" type="Sprite2D" parent="."]
+position = Vector2(450, 325)
+texture = ExtResource("2_lcaji")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(446, 339)
+scale = Vector2(3.75, 5.79167)
+sprite_frames = SubResource("SpriteFrames_ikkfy")
+autoplay = "default"
+frame = 7
+frame_progress = 1.0
+
+[node name="TurnPage" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_x4leh")
+
+[node name="Music" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_6a7j8")
+volume_db = -10.0
+autoplay = true
+parameters/looping = true
+
+[node name="RPage0" type="Sprite2D" parent="."]
+position = Vector2(448.536, 325)
+texture = ExtResource("4_ptt1b")
+offset = Vector2(210, 0)
+
+[node name="RPage" type="Sprite2D" parent="."]
+position = Vector2(448.536, 325)
+texture = ExtResource("3_a2l6c")
+offset = Vector2(210, 0)
+
+[node name="RPage2" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(448.536, 325)
+texture = ExtResource("3_a2l6c")
+offset = Vector2(210, 0)
+
+[node name="LPage0" type="Sprite2D" parent="."]
+position = Vector2(450, 325)
+texture = ExtResource("6_4f438")
+offset = Vector2(-210, 0)
+
+[node name="LPage" type="Sprite2D" parent="."]
+position = Vector2(450, 325)
+texture = ExtResource("3_a2l6c")
+offset = Vector2(-210, 0)
+
+[node name="LPage2" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(450, 325)
+texture = ExtResource("6_4f438")
+offset = Vector2(-210, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_j4jk7")
+}
+
+[connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
