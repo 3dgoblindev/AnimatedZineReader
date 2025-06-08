@@ -9,6 +9,7 @@ var start = false
 @export var car_texture: Texture2D
 var car_sprite: Sprite2D
 var car_position 
+var restart_b
 
 var max_turns = 6
 var used_turns = []
@@ -44,41 +45,72 @@ func find_start() -> Vector2i:
 			if level[y][x] == "S":
 				return Vector2i(x, y)
 	return Vector2i(-1, -1)
-'''	
+
 func _on_tile_pressed(x: int, y: int) -> void:
-	print("Tile clicked at: ", x, ", ", y, " -> ", level[y][x])
-	car_position = Vector2i(x, y)
-	update_car_position()
-'''
-func _on_tile_pressed(x: int, y: int) -> void:
+	var tile = tile_nodes.get(Vector2i(x, y))
+	if tile:
+		var tween = create_tween()
+		tween.tween_property(tile, "scale", Vector2(1.2, 1.2), 0.1).set_trans(Tween.TRANS_ELASTIC)
+		tween.tween_property(tile, "scale", Vector2(1.0, 1.0), 0.1).set_trans(Tween.TRANS_BACK)
+
+		await tween.finished  # Espera a que termine la animación para ejecutar la lógica
+
+		_handle_tile_logic(x, y)
+	
+func _handle_tile_logic(x: int, y: int) -> void:
 	if start:
 		var pos = Vector2i(x, y)
 
 		if not pos in car_path:
 			return  # Solo permite clics en el camino
 
-		# Solo añade a used_turns si es la primera vez
+		# Primero: detectar si pos está **antes** del último giro en used_turns
+		if used_turns.size() > 0:
+			var last_turn_index = used_turns.size() - 1
+			var last_turn_pos = used_turns[last_turn_index]
+			var clicked_index = car_path.find(pos)
+
+			var last_turn_path_index = car_path.find(last_turn_pos)
+
+			# Si el click está antes del último giro en la ruta (menor índice)
+			if clicked_index < last_turn_path_index:
+				# Eliminar giros que están **después** del click
+				# Buscar el índice de ese giro en used_turns
+				var to_remove = []
+				for i in range(used_turns.size()):
+					var turn_pos = used_turns[i]
+					var turn_path_index = car_path.find(turn_pos)
+					if turn_path_index > clicked_index:
+						to_remove.append(turn_pos)
+				
+				for turn_pos in to_remove:
+					used_turns.erase(turn_pos)
+					turn_directions.erase(turn_pos)
+				
+				print("Giross borrados después de", pos, ":", to_remove)
+
+		# Ahora la lógica normal para añadir o cambiar giros
 		if not used_turns.has(pos):
 			if used_turns.size() < max_turns:
 				used_turns.append(pos)
-				turn_directions[pos] = Vector2i(0, -1)  # Primera rotación: derecha
+				if used_turns.size() % 2 != 0:
+					turn_directions[pos] = Vector2i(1, 0)
+				else:
+					turn_directions[pos] = Vector2i(0, 1)
 			else:
 				print("¡Has usado todos los giros!")
 				return
 		else:
-			# Ya giraste antes: rota la dirección
 			if pos in turn_directions:
 				var dir = turn_directions[pos]
-				var new_dir = Vector2i(-dir.y, dir.x)  # Rota 90° a la derecha
+				var new_dir = Vector2i(-dir.x, -dir.y)
 				turn_directions[pos] = new_dir
 				print("🔁 Giro adicional en", pos, "→", new_dir)
-	
+
 	calculate_path()
-	update_car_path_visuals()
+
 	if check_victory():
-		print("¡Victoria!")
-
-
+		animate_car_movement()
 
 func update_car_position():
 	var tile = tile_nodes.get(car_position)
@@ -100,12 +132,12 @@ func calculate_path():
 	print("\n== CALCULANDO CAMINO ==")
 	car_path.clear()
 	flowers_adjacent_count = 0
-	
+
 	var pos = find_start()
 	print("Inicio en:", pos)
 	var dir = car_direction
 	var turns = 0
-	
+
 	while true:
 		pos += dir
 		print("Avanzando a:", pos)
@@ -148,9 +180,54 @@ func calculate_path():
 		if cell == "G":
 			print("🏁 Meta alcanzada en", pos)
 			break
-	
+
 	print("Camino final calculado:", car_path)
 	print("Flores adyacentes:", flowers_adjacent_count)
+	animate_car_path()
+
+func animate_car_path():
+	for tile_pos in tile_nodes:
+		var tile = tile_nodes[tile_pos]
+		tile.modulate = Color.WHITE
+	var delay_step := 0.01
+	for i in range(car_path.size()):
+		var pos = car_path[i]
+		var tile = tile_nodes.get(pos)
+		if tile:
+			tile.scale = Vector2(1.0, 1.0)
+			tile.modulate = Color.WHITE  # Resetea color antes de animar (opcional)
+			
+			await get_tree().create_timer(delay_step * i).timeout
+
+			var tween = create_tween()
+			tween.tween_property(tile, "scale", Vector2(1.2, 1.2), 0.05).set_trans(Tween.TRANS_ELASTIC)
+			tween.tween_property(tile, "scale", Vector2(1.0, 1.0), 0.05).set_trans(Tween.TRANS_BACK)
+			tween.tween_callback(func():
+				if pos in used_turns:
+					tile.modulate = Color.GREEN_YELLOW
+				else: 
+					tile.modulate = Color.AQUAMARINE  # Cambia a cualquier color que quieras
+			)
+
+		# Animar flores adyacentes
+		for offset in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var adj_pos = pos + offset
+			if is_inside_level(adj_pos) and level[adj_pos.y][adj_pos.x] == "F":
+				var flower_tile = tile_nodes.get(adj_pos)
+				if flower_tile:
+					flower_tile.scale = Vector2(1.0, 1.0)
+					flower_tile.modulate = Color.WHITE
+					
+					var flower_tween = create_tween()
+					flower_tween.tween_property(flower_tile, "scale", Vector2(1.2, 1.2), 0.1).set_trans(Tween.TRANS_ELASTIC)
+					flower_tween.tween_property(flower_tile, "scale", Vector2(1.0, 1.0), 0.1).set_trans(Tween.TRANS_BACK)
+					flower_tween.tween_callback(func():
+						flower_tile.modulate = Color.PINK  # O cualquier otro para flores
+					)
+
+		delay_step = max(0.001, delay_step - 0.001)
+
+
 
 
 func is_inside_level(pos: Vector2i) -> bool:
@@ -169,30 +246,11 @@ func check_victory():
 		return false
 	return true
 
-func update_car_path_visuals():
-	# Primero limpiamos todas las casillas
-	for tile_pos in tile_nodes:
-		var tile = tile_nodes[tile_pos]
-		tile.modulate = Color.WHITE
-
-	# Coloreamos el camino
-	for i in range(car_path.size()):
-		var pos = car_path[i]
-		if tile_nodes.has(pos):
-			tile_nodes[pos].modulate = Color.CYAN
-
-	# Coloreamos los giros
-	for pos in used_turns:
-		if tile_nodes.has(pos):
-			tile_nodes[pos].modulate = Color.ORANGE
-
-	# Coloreamos el punto final si es victoria
-	if check_victory():
-		var goal = car_path[car_path.size() - 1]
-		if tile_nodes.has(goal):
-			tile_nodes[goal].modulate = Color.GREEN
 
 func start_game():
+	restart_b = $"../TextureButton"
+	restart_b.connect("pressed", Callable(self, "reset_game"))
+
 	start=true
 	print("game started")
 		# Luego puedes calcular el camino inicial y mostrarlo
@@ -204,7 +262,7 @@ func start_game():
 	grid.columns = level[0].size()
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	
+		
 	for y in range(level.size()):
 		for x in range(level[y].size()):
 			var cell = level[y][x]
@@ -213,14 +271,93 @@ func start_game():
 			tile.custom_minimum_size = Vector2(tile_size, tile_size)
 			tile.connect("pressed", Callable(self, "_on_tile_pressed").bind(x, y))
 			grid.add_child(tile)
-			
+
 			var pos = Vector2i(x, y)
 			tile_nodes[pos] = tile
 			
+			tile.scale = Vector2.ZERO  # Empieza invisiblemente pequeño
+			
+			await get_tree().process_frame  # Espera un frame
+			var tween = create_tween()  # Ahora sí funciona
+			# Efecto de pop animado con delay
+			var delay = 0.02 * (y * level[0].size() + x)  # Efecto de ola
+			tween.tween_property(tile, "scale", Vector2(1.2, 1.2), 0.1).set_trans(Tween.TRANS_ELASTIC)
+			tween.tween_property(tile, "scale", Vector2(1.0, 1.0), 0.1).set_trans(Tween.TRANS_BACK)
+
 			# 🚗 Coloca el coche si es la casilla S
 			if cell == "S":
 				car_position = pos
-				await get_tree().process_frame  # Asegura que la posición global esté lista
+				await get_tree().process_frame
 				update_car_position()
+			
 	calculate_path()
-	update_car_path_visuals()
+
+func reset_game():
+	print("🔄 Reiniciando juego...")
+	
+	used_turns.clear()
+	turn_directions.clear()
+	car_path.clear()
+	flowers_adjacent_count = 0
+	
+	car_position = find_start()
+	car_direction = Vector2i(0, -1)  # Dirección inicial: hacia la derecha
+	
+	update_car_position()
+	calculate_path()
+
+func paint_path_gray():
+	for pos in car_path:
+		if tile_nodes.has(pos):
+			tile_nodes[pos].modulate = Color.GRAY
+
+func animate_car_movement() -> void:
+	# Resetea colores tiles
+	for tile_pos in tile_nodes:
+		var tile = tile_nodes[tile_pos]
+		tile.modulate = Color.WHITE
+
+	var delay_step := 0.3  # Tiempo de duración del tween para cada paso
+	var prev_pos = find_start()
+	var current_dir = car_direction
+
+	for pos in car_path:
+		var tile = tile_nodes.get(pos)
+		if tile:
+			# Animar el tile del camino
+			tile.modulate = Color.AQUAMARINE
+			if pos in used_turns:
+				tile.modulate = Color.GREEN_YELLOW
+
+		# Calcula la dirección desde la posición anterior a la actual
+		var new_dir = pos - prev_pos
+
+		# Actualiza la rotación del coche si cambia de dirección
+		if new_dir != current_dir:
+			current_dir = new_dir
+			update_car_rotation(current_dir)
+
+		# Mueve el coche suavemente con Tween
+		var tile_node = tile_nodes.get(pos)
+		if tile_node:
+			var target_pos = tile_node.get_global_position() + Vector2(tile_size * 0.5, tile_size * 0.5)
+			var tween = get_tree().create_tween()
+			tween.tween_property(car_sprite, "global_position", target_pos, delay_step).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+			
+			# Espera a que termine la animación antes de continuar
+			await tween.finished
+
+		prev_pos = pos
+
+
+
+func update_car_rotation(direction: Vector2i) -> void:
+	# Asumiendo que la dirección inicial Vector2i(0, -1) significa "arriba"
+	if direction == Vector2i(0, -1):
+		car_sprite.rotation_degrees = 0
+	elif direction == Vector2i(1, 0):
+		car_sprite.rotation_degrees = 90
+	elif direction == Vector2i(0, 1):
+		car_sprite.rotation_degrees = 180
+	elif direction == Vector2i(-1, 0):
+		car_sprite.rotation_degrees = 270

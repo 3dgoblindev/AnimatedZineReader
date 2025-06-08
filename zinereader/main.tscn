@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://c58pneqlpaoe6"]
+[gd_scene load_steps=29 format=3 uid="uid://c58pneqlpaoe6"]
 
 [ext_resource type="Script" path="res://main.gd" id="1_acyn8"]
 [ext_resource type="AudioStream" uid="uid://bjf081qg3bspl" path="res://Music/Blackout.mp3" id="2_6a7j8"]
@@ -17,6 +17,12 @@
 [ext_resource type="Texture2D" uid="uid://cvdt0umg8k6kf" path="res://Images/Fire/1 (45).png" id="10_sydqd"]
 [ext_resource type="Script" path="res://container.gd" id="16_x5441"]
 [ext_resource type="Texture2D" uid="uid://d2g1liejudchi" path="res://pages/8.png" id="17_70otb"]
+[ext_resource type="Texture2D" uid="uid://b27qgvlyx7djf" path="res://Images/flor.png" id="17_bs0r6"]
+[ext_resource type="Texture2D" uid="uid://c57btra2lqf05" path="res://Images/grass b.png" id="17_sluac"]
+[ext_resource type="Texture2D" uid="uid://bmtls5trwg6lo" path="res://Images/piedra.png" id="18_8h7v6"]
+[ext_resource type="Texture2D" uid="uid://t8e62urkmvlc" path="res://Images/castillo.png" id="19_hqwby"]
+[ext_resource type="Texture2D" uid="uid://do4sgmy7cc5rd" path="res://Images/coche.png" id="19_tsyck"]
+[ext_resource type="Texture2D" uid="uid://ca07f75jj257k" path="res://Images/restart.png" id="23_5iq50"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_ikkfy"]
 animations = [{
@@ -260,54 +266,6 @@ _data = {
 "TurnPage_R": SubResource("Animation_0gxn4")
 }
 
-[sub_resource type="Gradient" id="Gradient_mxe3k"]
-colors = PackedColorArray(0.617901, 0.101941, 0.428835, 1, 1, 1, 1, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_vjtvm"]
-gradient = SubResource("Gradient_mxe3k")
-width = 30
-height = 30
-
-[sub_resource type="Gradient" id="Gradient_ba0mm"]
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_fdep6"]
-gradient = SubResource("Gradient_ba0mm")
-width = 30
-height = 30
-
-[sub_resource type="Gradient" id="Gradient_7icxt"]
-colors = PackedColorArray(0, 0, 1, 1, 1, 1, 1, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_rrpdg"]
-gradient = SubResource("Gradient_7icxt")
-width = 30
-height = 30
-
-[sub_resource type="Gradient" id="Gradient_bemux"]
-colors = PackedColorArray(0, 0, 0, 1, 0, 0.597063, 0.931732, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_bmkqu"]
-gradient = SubResource("Gradient_bemux")
-width = 30
-height = 30
-
-[sub_resource type="Gradient" id="Gradient_qrd4a"]
-colors = PackedColorArray(2.21401e-06, 0.591824, 3.08037e-06, 1, 1, 1, 1, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_8gguy"]
-gradient = SubResource("Gradient_qrd4a")
-width = 30
-height = 30
-
-[sub_resource type="Gradient" id="Gradient_bke1s"]
-offsets = PackedFloat32Array(0, 0.532468, 1)
-colors = PackedColorArray(1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_mpwk5"]
-gradient = SubResource("Gradient_bke1s")
-width = 20
-height = 20
-
 [node name="Main" type="Node2D"]
 script = ExtResource("1_acyn8")
 
@@ -384,13 +342,13 @@ grow_vertical = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 script = ExtResource("16_x5441")
-flower_texture = SubResource("GradientTexture2D_vjtvm")
-rock_texture = SubResource("GradientTexture2D_fdep6")
-goal_texture = SubResource("GradientTexture2D_rrpdg")
-start_texture = SubResource("GradientTexture2D_bmkqu")
-empty_texture = SubResource("GradientTexture2D_8gguy")
-tile_size = 30
-car_texture = SubResource("GradientTexture2D_mpwk5")
+flower_texture = ExtResource("17_bs0r6")
+rock_texture = ExtResource("18_8h7v6")
+goal_texture = ExtResource("19_hqwby")
+start_texture = ExtResource("17_sluac")
+empty_texture = ExtResource("17_sluac")
+tile_size = 25
+car_texture = ExtResource("19_tsyck")
 
 [node name="BG" type="Sprite2D" parent="Minigame/Container"]
 texture = ExtResource("17_70otb")
@@ -402,5 +360,13 @@ layout_mode = 2
 
 [node name="GridContainer" type="GridContainer" parent="Minigame/Container/CenterContainer"]
 layout_mode = 2
+
+[node name="TextureButton" type="TextureButton" parent="Minigame"]
+offset_left = 372.0
+offset_top = -34.0
+offset_right = 568.0
+offset_bottom = 184.0
+scale = Vector2(0.199291, 0.199291)
+texture_normal = ExtResource("23_5iq50")
 
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]
