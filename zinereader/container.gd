@@ -1,5 +1,5 @@
 extends Container
-
+var start = false
 @export var flower_texture: Texture2D
 @export var rock_texture: Texture2D
 @export var goal_texture: Texture2D
@@ -34,36 +34,9 @@ var tile_nodes = {}
 
 
 func _ready() -> void:
-	car_sprite = Sprite2D.new()
-	car_sprite.texture = car_texture
-	add_child(car_sprite)
-	
-	var grid = $CenterContainer/GridContainer
-	grid.columns = level[0].size()
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	
-	for y in range(level.size()):
-		for x in range(level[y].size()):
-			var cell = level[y][x]
-			var tile = TextureButton.new()
-			tile.texture_normal = get_texture_for_char(cell)
-			tile.custom_minimum_size = Vector2(tile_size, tile_size)
-			tile.connect("pressed", Callable(self, "_on_tile_pressed").bind(x, y))
-			grid.add_child(tile)
-			
-			var pos = Vector2i(x, y)
-			tile_nodes[pos] = tile
-			
-			# 🚗 Coloca el coche si es la casilla S
-			if cell == "S":
-				car_position = pos
-				await get_tree().process_frame  # Asegura que la posición global esté lista
-				update_car_position()
+	print("ready")
 
-	# Luego puedes calcular el camino inicial y mostrarlo
-	calculate_path()
-	update_car_path_visuals()
+
 
 func find_start() -> Vector2i:
 	for y in range(level.size()):
@@ -78,26 +51,27 @@ func _on_tile_pressed(x: int, y: int) -> void:
 	update_car_position()
 '''
 func _on_tile_pressed(x: int, y: int) -> void:
-	var pos = Vector2i(x, y)
+	if start:
+		var pos = Vector2i(x, y)
 
-	if not pos in car_path:
-		return  # Solo permite clics en el camino
+		if not pos in car_path:
+			return  # Solo permite clics en el camino
 
-	# Solo añade a used_turns si es la primera vez
-	if not used_turns.has(pos):
-		if used_turns.size() < max_turns:
-			used_turns.append(pos)
-			turn_directions[pos] = Vector2i(0, -1)  # Primera rotación: derecha
+		# Solo añade a used_turns si es la primera vez
+		if not used_turns.has(pos):
+			if used_turns.size() < max_turns:
+				used_turns.append(pos)
+				turn_directions[pos] = Vector2i(0, -1)  # Primera rotación: derecha
+			else:
+				print("¡Has usado todos los giros!")
+				return
 		else:
-			print("¡Has usado todos los giros!")
-			return
-	else:
-		# Ya giraste antes: rota la dirección
-		if pos in turn_directions:
-			var dir = turn_directions[pos]
-			var new_dir = Vector2i(-dir.y, dir.x)  # Rota 90° a la derecha
-			turn_directions[pos] = new_dir
-			print("🔁 Giro adicional en", pos, "→", new_dir)
+			# Ya giraste antes: rota la dirección
+			if pos in turn_directions:
+				var dir = turn_directions[pos]
+				var new_dir = Vector2i(-dir.y, dir.x)  # Rota 90° a la derecha
+				turn_directions[pos] = new_dir
+				print("🔁 Giro adicional en", pos, "→", new_dir)
 	
 	calculate_path()
 	update_car_path_visuals()
@@ -191,7 +165,7 @@ func check_victory():
 		return false
 	if used_turns.size() != max_turns:
 		return false
-	if flowers_adjacent_count == 3:
+	if flowers_adjacent_count != 3:
 		return false
 	return true
 
@@ -217,3 +191,36 @@ func update_car_path_visuals():
 		var goal = car_path[car_path.size() - 1]
 		if tile_nodes.has(goal):
 			tile_nodes[goal].modulate = Color.GREEN
+
+func start_game():
+	start=true
+	print("game started")
+		# Luego puedes calcular el camino inicial y mostrarlo
+	car_sprite = Sprite2D.new()
+	car_sprite.texture = car_texture
+	add_child(car_sprite)
+	
+	var grid = $CenterContainer/GridContainer
+	grid.columns = level[0].size()
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	
+	for y in range(level.size()):
+		for x in range(level[y].size()):
+			var cell = level[y][x]
+			var tile = TextureButton.new()
+			tile.texture_normal = get_texture_for_char(cell)
+			tile.custom_minimum_size = Vector2(tile_size, tile_size)
+			tile.connect("pressed", Callable(self, "_on_tile_pressed").bind(x, y))
+			grid.add_child(tile)
+			
+			var pos = Vector2i(x, y)
+			tile_nodes[pos] = tile
+			
+			# 🚗 Coloca el coche si es la casilla S
+			if cell == "S":
+				car_position = pos
+				await get_tree().process_frame  # Asegura que la posición global esté lista
+				update_car_position()
+	calculate_path()
+	update_car_path_visuals()

@@ -370,7 +370,8 @@ libraries = {
 }
 
 [node name="Minigame" type="Node2D" parent="."]
-position = Vector2(200, 300)
+visible = false
+position = Vector2(30, 325)
 
 [node name="Container" type="Container" parent="Minigame"]
 anchors_preset = 4

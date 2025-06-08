@@ -7,9 +7,12 @@ var special_sounds = {
 	200: "res://sounds/page_dramatic.wav"
 }
 
+var special_page
+
 var turning_right = false
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	special_page = $Minigame
 	var dir = DirAccess.open("res://pages")
 	if dir:
 		dir.list_dir_begin()
@@ -65,7 +68,14 @@ func _process(delta: float) -> void:
 	pass
 
 func _input(event):
-	if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.pressed:
+	if event is InputEventMouseButton and event.pressed:
+		if special_page.visible:
+			return # Si el minijuego está activo, ignora los clics
+
+		if is_at_last_page():
+			_show_minigame()
+			return
+
 		var x = event.position.x
 		var screen_width = get_viewport().size.x
 
@@ -73,6 +83,7 @@ func _input(event):
 			TurnLeft()
 		else:
 			TurnRight()
+
 
 func TurnLeft():
 	if current_page_index - 2 >= 0:
@@ -117,3 +128,11 @@ func _on_animation_player_animation_finished(anim_name: StringName) -> void:
 				$SpecialSoundPlayer.stream = custom_sound
 				$SpecialSoundPlayer.play()
 	
+func is_at_last_page() -> bool:
+	return current_page_index + 1 >= page_paths.size()
+
+func _show_minigame():
+	special_page.visible = true
+	$Minigame/Container.start_game() #y yo pa que declaro una variable
+	$LPage.visible = false
+	$RPage.visible = false
