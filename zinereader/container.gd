@@ -7,9 +7,27 @@ var start = false
 @export var empty_texture: Texture2D
 @export var tile_size: int = 64
 @export var car_texture: Texture2D
+
+@export var win_sound: AudioStream
+@export var click_sound: AudioStream
+@export var car_move_sound: AudioStream
+@export var flower_sound: AudioStream
+@export var path_step_sound: AudioStream
+
+
+var win_audio: AudioStreamPlayer
+var click_audio: AudioStreamPlayer
+var car_audio: AudioStreamPlayer
+var flower_audio: AudioStreamPlayer
+var path_audio: AudioStreamPlayer
+
+
+
 var car_sprite: Sprite2D
 var car_position 
 var restart_b
+var imagen1
+var imagen2
 
 var max_turns = 6
 var used_turns = []
@@ -48,6 +66,7 @@ func find_start() -> Vector2i:
 
 func _on_tile_pressed(x: int, y: int) -> void:
 	var tile = tile_nodes.get(Vector2i(x, y))
+	click_audio.play()
 	if tile:
 		var tween = create_tween()
 		tween.tween_property(tile, "scale", Vector2(1.2, 1.2), 0.1).set_trans(Tween.TRANS_ELASTIC)
@@ -132,6 +151,7 @@ func calculate_path():
 	print("\n== CALCULANDO CAMINO ==")
 	car_path.clear()
 	flowers_adjacent_count = 0
+	var counted_flowers := {}
 
 	var pos = find_start()
 	print("Inicio en:", pos)
@@ -158,12 +178,13 @@ func calculate_path():
 
 		car_path.append(pos)
 		
-		# Ver si está adyacente a una flor
+		# Ver si está adyacente a una flor no contada
 		for offset in [Vector2i(1,0), Vector2i(-1,0), Vector2i(0,1), Vector2i(0,-1)]:
 			var npos = pos + offset
-			if is_inside_level(npos) and level[npos.y][npos.x] == "F":
+			if is_inside_level(npos) and level[npos.y][npos.x] == "F" and not counted_flowers.has(npos):
+				counted_flowers[npos] = true
 				flowers_adjacent_count += 1
-				print("🌸 Flor adyacente encontrada en", npos, "- Total:", flowers_adjacent_count)
+				print("🌸 Flor adyacente nueva encontrada en", npos, "- Total:", flowers_adjacent_count)
 				break
 		
 		# Comprobar si hay giro manual
@@ -182,14 +203,16 @@ func calculate_path():
 			break
 
 	print("Camino final calculado:", car_path)
-	print("Flores adyacentes:", flowers_adjacent_count)
+	print("Flores adyacentes únicas:", flowers_adjacent_count)
 	animate_car_path()
+
 
 func animate_car_path():
 	for tile_pos in tile_nodes:
 		var tile = tile_nodes[tile_pos]
 		tile.modulate = Color.WHITE
 	var delay_step := 0.01
+	var pitch = 1
 	for i in range(car_path.size()):
 		var pos = car_path[i]
 		var tile = tile_nodes.get(pos)
@@ -203,10 +226,15 @@ func animate_car_path():
 			tween.tween_property(tile, "scale", Vector2(1.2, 1.2), 0.05).set_trans(Tween.TRANS_ELASTIC)
 			tween.tween_property(tile, "scale", Vector2(1.0, 1.0), 0.05).set_trans(Tween.TRANS_BACK)
 			tween.tween_callback(func():
+				path_audio.pitch_scale = pitch
+				pitch += 0.1
 				if pos in used_turns:
 					tile.modulate = Color.GREEN_YELLOW
+					path_audio.play()
 				else: 
 					tile.modulate = Color.AQUAMARINE  # Cambia a cualquier color que quieras
+					path_audio.play()
+				
 			)
 
 		# Animar flores adyacentes
@@ -223,6 +251,7 @@ func animate_car_path():
 					flower_tween.tween_property(flower_tile, "scale", Vector2(1.0, 1.0), 0.1).set_trans(Tween.TRANS_BACK)
 					flower_tween.tween_callback(func():
 						flower_tile.modulate = Color.PINK  # O cualquier otro para flores
+						flower_audio.play()
 					)
 
 		delay_step = max(0.001, delay_step - 0.001)
@@ -248,7 +277,29 @@ func check_victory():
 
 
 func start_game():
+	win_audio = AudioStreamPlayer.new()
+	win_audio.stream = win_sound
+	add_child(win_audio)
+
+	click_audio = AudioStreamPlayer.new()
+	click_audio.stream = click_sound
+	add_child(click_audio)
+
+	car_audio = AudioStreamPlayer.new()
+	car_audio.stream = car_move_sound
+	add_child(car_audio)
+	
+	flower_audio = AudioStreamPlayer.new()
+	flower_audio.stream = flower_sound
+	add_child(flower_audio)
+	
+	path_audio = AudioStreamPlayer.new()
+	path_audio.stream = path_step_sound
+	add_child(path_audio)
+
 	restart_b = $"../TextureButton"
+	imagen1 = $"../Win"
+	imagen2 = $"../Ole"
 	restart_b.connect("pressed", Callable(self, "reset_game"))
 
 	start=true
@@ -262,7 +313,7 @@ func start_game():
 	grid.columns = level[0].size()
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		
+	var pitch = 1
 	for y in range(level.size()):
 		for x in range(level[y].size()):
 			var cell = level[y][x]
@@ -276,14 +327,21 @@ func start_game():
 			tile_nodes[pos] = tile
 			
 			tile.scale = Vector2.ZERO  # Empieza invisiblemente pequeño
-			
+						
+
 			await get_tree().process_frame  # Espera un frame
+
 			var tween = create_tween()  # Ahora sí funciona
 			# Efecto de pop animado con delay
 			var delay = 0.02 * (y * level[0].size() + x)  # Efecto de ola
 			tween.tween_property(tile, "scale", Vector2(1.2, 1.2), 0.1).set_trans(Tween.TRANS_ELASTIC)
 			tween.tween_property(tile, "scale", Vector2(1.0, 1.0), 0.1).set_trans(Tween.TRANS_BACK)
-
+			
+			await get_tree().process_frame  # Espera un frame
+			click_audio.play()
+			click_audio.pitch_scale = pitch
+			pitch += 0.1
+			
 			# 🚗 Coloca el coche si es la casilla S
 			if cell == "S":
 				car_position = pos
@@ -346,9 +404,24 @@ func animate_car_movement() -> void:
 			
 			# Espera a que termine la animación antes de continuar
 			await tween.finished
+			car_audio.play()
 
 		prev_pos = pos
+	animate_win()
+	
+func animate_win() -> void:
+	imagen1.visible = true
+	imagen2.visible = true
 
+	var tween = get_tree().create_tween()
+	tween.tween_property(imagen1, "scale", Vector2(1.2, 1.2), 0.3).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(imagen2, "scale", Vector2(1.2, 1.2), 0.3).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+
+	# Vuelve a su escala original si quieres que rebote y vuelva
+	tween.tween_property(imagen1, "scale", Vector2(1, 1), 0.2)
+	tween.parallel().tween_property(imagen2, "scale", Vector2(1, 1), 0.2)
+	
+	win_audio.play()
 
 
 func update_car_rotation(direction: Vector2i) -> void:
