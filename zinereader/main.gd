@@ -44,17 +44,21 @@ func _load_current_pages():
 		$RPage2.texture = page_textures[current_page_index - 1]
 	else:
 		$RPage2.texture = null
+	
+	if is_at_last_page():
+		_show_minigame()
 
 
 func _input(event):
 	if event is InputEventMouseButton and event.pressed:
 		if special_page.visible:
 			return
-
+		'''
 		if is_at_last_page():
 			_show_minigame()
 			return
-		
+		'''
+
 		var x = event.position.x
 		var screen_width = get_viewport().size.x
 

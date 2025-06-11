@@ -250,8 +250,12 @@ func animate_car_path():
 					flower_tween.tween_property(flower_tile, "scale", Vector2(1.2, 1.2), 0.1).set_trans(Tween.TRANS_ELASTIC)
 					flower_tween.tween_property(flower_tile, "scale", Vector2(1.0, 1.0), 0.1).set_trans(Tween.TRANS_BACK)
 					flower_tween.tween_callback(func():
-						flower_tile.modulate = Color.PINK  # O cualquier otro para flores
-						flower_audio.play()
+						if flowers_adjacent_count <= 3:
+							flower_tile.modulate = Color.PINK  # O cualquier otro para flores
+							flower_audio.play()
+						else:
+							flower_tile.modulate = Color.FIREBRICK  # O cualquier otro para flores
+
 					)
 
 		delay_step = max(0.001, delay_step - 0.001)
@@ -277,6 +281,7 @@ func check_victory():
 
 
 func start_game():
+	
 	win_audio = AudioStreamPlayer.new()
 	win_audio.stream = win_sound
 	add_child(win_audio)
@@ -307,6 +312,7 @@ func start_game():
 		# Luego puedes calcular el camino inicial y mostrarlo
 	car_sprite = Sprite2D.new()
 	car_sprite.texture = car_texture
+	car_sprite.visible = false
 	add_child(car_sprite)
 	
 	var grid = $CenterContainer/GridContainer
@@ -348,6 +354,7 @@ func start_game():
 				await get_tree().process_frame
 				update_car_position()
 			
+	car_sprite.visible = true
 	calculate_path()
 
 func reset_game():
